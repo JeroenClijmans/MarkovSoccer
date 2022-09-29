@@ -18,7 +18,8 @@ packages = [{include = "markovsoccer"}]
 python = "^3.7.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^5.4"
+jupyter = "^1.0.0"
 black = "^22.8.0"
 
 [build-system]
