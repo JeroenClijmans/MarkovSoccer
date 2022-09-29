@@ -1,17 +1,25 @@
 [tool.poetry]
 name = "markovsoccer"
 version = "0.1.0"
-description = ""
+description = "Implementation of the construction of Markov models representing the offensive style of play of soccer teams, and analysis based on these models."
 authors = ["Jeroen Clijmans <jeroen.clijmans@student.kuleuven.be>"]
+license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/JeroenClijmans/markovsoccer"
+repository = "https://github.com/JeroenClijmans/markovsoccer"
+keywords = ["soccer", "football", "sports analytics"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"
+]
 packages = [{include = "markovsoccer"}]
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
-black = "^22.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+black = "^22.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
