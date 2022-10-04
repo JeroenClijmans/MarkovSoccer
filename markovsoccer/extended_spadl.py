@@ -30,11 +30,11 @@ def convert_to_extended_spadl(actions: pd.DataFrame) -> pd.DataFrame:
     modelled_possession_starts = _locate_modelled_possession_starts(actions, possession_starts)
     actions['modelled_possession_start'] = modelled_possession_starts
     actions['modelled_possession_sequence'] = _locate_possession_seq_actions(actions, modelled_possession_starts)
-    actions['ball_regain'] = _locate_ball_regains(actions, modelled_possession_starts)
+    actions['ball_recovery'] = _locate_ball_regains(actions, modelled_possession_starts)
     actions['ends_in_shot'] = _locate_possessions_ending_in_shot(actions, modelled_possession_starts)
     actions = actions[['game_id', 'period_id', 'timestamp', 'team_name', 'player_id', 'start_x',
                        'end_x', 'start_y', 'end_y', 'type_name', 'result_name', 'bodypart_name',
-                       'modelled_possession_sequence']]
+                       'ball_recovery', 'modelled_possession_sequence']]
     return actions
 
 
