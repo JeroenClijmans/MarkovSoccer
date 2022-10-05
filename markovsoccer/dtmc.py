@@ -26,10 +26,10 @@ class DTMC:
         self.size = transition_matrix.shape[0]  # todo: check if works
 
         # R is the matrix containing the transition probabilities from transient to absorbing states
-        self.R = self.transition_matrix[:start_absorbing_states, start_absorbing_states:]  # todo: check if works
+        self.R = self.transition_matrix[:start_absorbing_states, start_absorbing_states:]
 
         # Q is the matrix containing the transition probabilities from transient to transient states
-        self.Q = self.transition_matrix[:start_absorbing_states, :start_absorbing_states]  # todo: check if works
+        self.Q = self.transition_matrix[:start_absorbing_states, :start_absorbing_states]
 
         # fundamental matrix
         self.fundamental_matrix = DTMC._calc_fundamental_matrix(self.Q)
@@ -61,6 +61,20 @@ class DTMC:
             fundamental_matrix_abridged = fundamental_matrix_abridged + term
             term = np.matmul(term, transition_matrix)
         return fundamental_matrix_abridged
+
+    # ----- Model checking --------------------------------------------------- #
+
+    def average_number_visits_in(self, fromm: int, states: set):
+        """
+        Compute the average number of visits to a particular set of states when starting from a given state.
+        :param fromm: The state to start from.
+        :param states: The states to count.
+        :return: Average number of visits to the given set of states when starting from the given state.
+        """
+        result = 0
+        for state in states:
+            result += self.fundamental_matrix[fromm, state]
+        return result
 
     # ----- Related DTMC's --------------------------------------------------- #
 

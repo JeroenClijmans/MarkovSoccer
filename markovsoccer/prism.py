@@ -290,7 +290,6 @@ class PrismModel:
         return code
 
     def write_to_file(self, path: str):
-        print(os.getcwd())
         f = open(path, "w+")
         f.write(self.to_code())
         f.write("\n")
@@ -359,7 +358,7 @@ class PrismModel:
             else:
                 own_half_req += " | state={}".format(state)
         for state in OPPONENT_HALF_STATES:
-            if len(own_half_req) == 0:
+            if len(opponent_half_req) == 0:
                 opponent_half_req = "state={}".format(state)
             else:
                 opponent_half_req += " | state={}".format(state)

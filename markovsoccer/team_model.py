@@ -16,7 +16,7 @@ from markovsoccer.prism import PrismModel
 
 class TeamModel(DTMC):
 
-    # ----- Public ----------------------------------------------------------- #
+    # ----- Initialization and I/O ------------------------------------------- #
 
     def __init__(self, transition_matrix: np.ndarray, team_name: str):
         super().__init__(transition_matrix, start_absorbing_states=NB_TRANSIENT_STATES)
@@ -28,9 +28,55 @@ class TeamModel(DTMC):
         model = TeamModel(transition_matrix, team_name)
         return model
 
+    @staticmethod
+    def read_from(model_path: str):
+        """
+        Read from a PRISM file representing a team model.
+        :param model_path: path to the PRISM file
+        :return: TeamModel object as read from the PRISM file
+        """
+        transition_matrix = TeamModel._construct_transition_matrix_from_file(model_path)
+        model = TeamModel(transition_matrix, "")  # TODO: add team name
+        return model
+
     def convert_to_prism_file(self, path: str):
         prism_model = PrismModel.construct_from(self)
         prism_model.write_to_file(path)
+
+    # ----- Private: read from PRISM file ------------------------------------ #
+
+    @staticmethod
+    def _construct_transition_matrix_from_file(model_path: str) -> np.ndarray:
+        matrix = np.zeros((NB_STATES, NB_STATES))
+        for state in range(NB_STATES):
+            transition_probs = TeamModel._get_transition_probabilities_from_file(model_path, state)
+            for to in range(NB_STATES):
+                matrix[state, to] = transition_probs[to]
+        return matrix
+
+    @staticmethod
+    def _get_transition_probabilities_from_file(model_path: str, fromm: int):
+        f = open(model_path, 'r')
+        model = f.read()
+        f.close()
+        result = dict()
+        try:
+            probabilities_string = model.split("state={} -> ".format(fromm))[1]
+            probabilities_string = probabilities_string.split(';')[0]
+            probabilities = probabilities_string.split(" + ")
+            for s in probabilities:
+                to = int(s.split("state'=")[1].split(")")[0])
+                prob = float(s.split(":")[0])
+                result[to] = prob
+        except IndexError:
+            # Transition probabilities from the given state are not listed in the model (= absorbing state)
+            pass
+
+        for state in range(NB_STATES):
+            if state not in result:
+                result[state] = 0.0
+
+        return result
 
     # ----- Private: model construction -------------------------------------- #
 
@@ -297,7 +343,7 @@ def _scoring_prob(actions: pd.DataFrame, team_name: str) -> pd.DataFrame:
     goal_freq = _safe_divide(goal_matrix, shot_matrix).flatten()
 
     d = {
-        'shot_not_successful': 1 - goal_freq,  # todo: check if matrices are right
+        'shot_not_successful': 1 - goal_freq,
         'goal': goal_freq
     }
     result = pd.DataFrame(data=d)
