@@ -83,6 +83,18 @@ class DTMC:
             result += self.fundamental_matrix[fromm, state]
         return result
 
+    def probability_of_moving_to(self, fromm: int, states: set):
+        """
+        Compute the probability of transitioning from a particular state to any of the states in the given set.
+        :param fromm: The state to start from.
+        :param states: The states to transition to.
+        :return: The probability of transitioning from the given state to any of the states in the given set.
+        """
+        result = 0
+        for state in states:
+            result += self.transition_matrix[fromm, state]
+        return result
+
     def get_most_likely_subsequences(self, sequence_length: int, n=None):
         sequences = list()
         # weight each start state by its usage

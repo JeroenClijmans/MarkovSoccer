@@ -43,6 +43,22 @@ class TeamModel(DTMC):
         prism_model = PrismModel.construct_from(self)
         prism_model.write_to_file(path)
 
+    # ----- Model checking --------------------------------------------------- #
+
+    def average_number_actions(self, fromm: int) -> float:
+        # Transition from initial state to a field state doesn't count as an action
+        if fromm == INITIAL_STATE:
+            result = 0
+            for start_state in START_STATES:
+                weight = self.Q[INITIAL_STATE, start_state]  # weight each start state by its probability
+                nb_actions = self.average_number_actions(fromm=start_state)
+                result += weight * nb_actions
+            return result
+        elif fromm in START_STATES:
+            return self.t[fromm] - 1 if fromm == BALL_REGAIN_STATE else self.t[fromm]
+        else:
+            return self.t[fromm]
+
     # ----- Related team models ---------------------------------------------- #
 
     def construct_model_if_absorbed_in(self, absorbing_states: set):

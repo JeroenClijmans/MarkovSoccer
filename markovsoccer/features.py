@@ -122,3 +122,61 @@ class InwardsOutwardsPreference(Feature):
         )
         for seq in most_likely_subsequences:
             seq.visualize()
+
+
+class SpeedOfPlay(Feature):
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def calculate(team_model: TeamModel) -> float:
+        """
+        Calculate the speed of play, quantified as the average number of actions
+        of sequences ending in a shot.
+        :param team_model: The team model
+        :return: Average number of actions of sequences ending in a shot
+        """
+        team_model_shots = team_model.construct_model_if_absorbed_in(SHOT_STATES)
+        return team_model_shots.average_number_actions(INITIAL_STATE)
+
+
+class LongBalls(Feature):
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def calculate(team_model: TeamModel) -> float:
+        """
+        Calculate the likelihood to use long ball, quantified as the probability
+        of directly moving the ball from the own half to the offensive third in
+        one action.
+        :param team_model: The team model
+        :return: Probability of directly moving the ball from the own half to
+        the offensive third in one action.
+        """
+        # calculate using the PRISM model checker
+        result = 0
+        normalization_constant = 0
+        for state in START_STATES:
+            weight = team_model.expected_number_visits_in(INITIAL_STATE, {state})
+            normalization_constant += weight
+            result += weight * team_model.probability_of_moving_to(state, OFFENSIVE_THIRD_STATES)
+        return result / normalization_constant
+
+
+class LongGoalKicks(Feature):
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def calculate(team_model: TeamModel) -> float:
+        """
+        Calculate the likelihood of a long goal kick, quantified as the
+        probability of kicking a goal kick to the opponent half.
+        :param team_model: The team model
+        :return: Probability of kicking a goal kick to the opponent half.
+        """
+        return team_model.probability_of_moving_to(GOALKICK_STATE, OPPONENT_HALF_STATES)

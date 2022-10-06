@@ -68,3 +68,21 @@ def _get_cell_indices_from_flat(flat_cell_index: int) -> (int, int):
 
 OWN_HALF_STATES = _calc_own_half_states()
 OPPONENT_HALF_STATES = _calc_opponent_half_states()
+
+
+def _calc_thirds_states():
+    defensive_third = set()
+    middle_third = set()
+    offensive_third = set()
+    for cell in FIELD_STATES:
+        (cell_y, cell_x) = _get_cell_indices_from_flat(cell)
+        if cell_x < LENGTH // 3:
+            defensive_third.add(cell)
+        elif cell_x >= LENGTH - LENGTH // 3:
+            offensive_third.add(cell)
+        else:
+            middle_third.add(cell)
+    return defensive_third, middle_third, offensive_third
+
+
+DEFENSIVE_THIRD_STATES, MIDDLE_THIRD_STATES, OFFENSIVE_THIRD_STATES = _calc_thirds_states()

@@ -5,7 +5,6 @@ PRISM model checker.
 
 import abc
 import decimal
-import os
 from collections import OrderedDict
 from decimal import Decimal
 from math import floor
@@ -369,23 +368,21 @@ class PrismModel:
         defensive_third_req = ""
         middle_third_req = ""
         offensive_third_req = ""
-        for cell in FIELD_STATES:
-            (cell_y, cell_x) = _get_cell_indices(cell)
-            if cell_x < LENGTH // 3:
-                if len(defensive_third_req) == 0:
-                    defensive_third_req = "state={}".format(cell)
-                else:
-                    defensive_third_req += " | state={}".format(cell)
-            elif cell_x >= LENGTH - LENGTH // 3:
-                if len(offensive_third_req) == 0:
-                    offensive_third_req = "state={}".format(cell)
-                else:
-                    offensive_third_req += " | state={}".format(cell)
+        for state in DEFENSIVE_THIRD_STATES:
+            if len(defensive_third_req) == 0:
+                defensive_third_req = "state={}".format(state)
             else:
-                if len(middle_third_req) == 0:
-                    middle_third_req = "state={}".format(cell)
-                else:
-                    middle_third_req += " | state={}".format(cell)
+                defensive_third_req += " | state={}".format(state)
+        for state in MIDDLE_THIRD_STATES:
+            if len(middle_third_req) == 0:
+                middle_third_req = "state={}".format(state)
+            else:
+                middle_third_req += " | state={}".format(state)
+        for state in OFFENSIVE_THIRD_STATES:
+            if len(offensive_third_req) == 0:
+                offensive_third_req = "state={}".format(state)
+            else:
+                offensive_third_req += " | state={}".format(state)
         self.add_label("defensive_third", defensive_third_req)
         self.add_label("offensive_third", offensive_third_req)
         self.add_label("middle_third", middle_third_req)
