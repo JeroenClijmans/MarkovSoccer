@@ -19,7 +19,7 @@ class TeamModel(DTMC):
     # ----- Initialization and I/O ------------------------------------------- #
 
     def __init__(self, transition_matrix: np.ndarray, team_name: str):
-        super().__init__(transition_matrix, start_absorbing_states=NB_TRANSIENT_STATES)
+        super().__init__(transition_matrix, initial_state=INITIAL_STATE, start_absorbing_states=NB_TRANSIENT_STATES)
         self.team_name = team_name
 
     @staticmethod
@@ -42,6 +42,22 @@ class TeamModel(DTMC):
     def convert_to_prism_file(self, path: str):
         prism_model = PrismModel.construct_from(self)
         prism_model.write_to_file(path)
+
+    # ----- Related team models ---------------------------------------------- #
+
+    def construct_model_if_absorbed_in(self, absorbing_states: set):
+        nb_transient_states = self.start_absorbing_states
+        nb_absorbing_states = self.size - self.start_absorbing_states  # todo: check if correct
+        R_new = self._construct_R_if_absorbed_in(absorbing_states)
+        Q_new = self._construct_Q_if_absorbed_in(absorbing_states)
+        transition_matrix_new = np.zeros((self.size, self.size))
+        transition_matrix_new[:self.start_absorbing_states, :self.start_absorbing_states] = Q_new
+        transition_matrix_new[:self.start_absorbing_states, self.start_absorbing_states:] = R_new
+        transition_matrix_new[self.start_absorbing_states:, :self.start_absorbing_states] = \
+            np.zeros((nb_absorbing_states, nb_transient_states))
+        transition_matrix_new[self.start_absorbing_states:, self.start_absorbing_states:] = np.identity(
+            nb_absorbing_states)
+        return TeamModel(transition_matrix_new, self.team_name)
 
     # ----- Private: read from PRISM file ------------------------------------ #
 
