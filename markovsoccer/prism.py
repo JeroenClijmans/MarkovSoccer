@@ -5,6 +5,9 @@ PRISM model checker.
 
 import abc
 import decimal
+import numpy as np
+import os
+import subprocess
 from collections import OrderedDict
 from decimal import Decimal
 from math import floor
@@ -238,6 +241,43 @@ class PrismModel:
         self.rewards = []
         self.labels = []
 
+    # ----- model checking --------------------------------------------------- #
+
+    def property_heatmap(self, property: str, w: int, l: int):
+        """
+        Construct a heatmap of the result of each state for a particular
+        property specified using the PRISM property specification language.
+        Requires that the PRISM installation is added to your path (a subprocess
+        will be called). Only the first w*l states will be considered in the
+        heatmap.
+        :param property: property specified using the PRISM property
+        specification language
+        :param w: width of the heatmap
+        :param l: length of the heatmap
+        :return: heatmap representing the value of the property for each state
+        """
+        out, err = self._run_prism_model_checking(property)
+        return _convert_results_to_heatmap(out, w, l)
+
+    def _run_prism_model_checking(self, property: str):
+        cwd = os.getcwd()
+        # create temporary directory
+        if not os.path.exists(rf'{cwd}\tmp'):
+            os.makedirs(rf'{cwd}\tmp')
+        # write team model to disk
+        model_path = rf'{cwd}\tmp\model.prism'
+        self.write_to_file(model_path)
+        # write property to disk
+        property_path = rf'{cwd}\tmp\property.props'
+        property_file = open(property_path, 'w+')
+        property_file.write(property)
+        property_file.close()
+        # call PRISM with files written on disk
+        results = _run_prism_model_checking_with_files(model_path, property_path)
+        os.remove(model_path)
+        os.remove(property_path)
+        return results
+
     # ----- modification ----------------------------------------------------- #
 
     def add_module(self, name: str) -> PrismModule:
@@ -430,3 +470,32 @@ def _get_cell_indices(flat_cell_index: int) -> (int, int):
     x = flat_cell_index % LENGTH  # length index
     y = flat_cell_index // LENGTH  # width index
     return y, x
+
+
+def _run_prism_model_checking_with_files(model_path: str, properties_path: str):
+    p = subprocess.Popen(
+        ["prism", f'{model_path}', f'{properties_path}'],
+        shell=True,
+        stdout=subprocess.PIPE
+    )
+    out, err = p.communicate()
+    return out.decode("utf-8"), err
+
+
+def _convert_results_to_heatmap(results: str, width: int, length: int) -> np.ndarray:
+    # note: this function is heavily dependent on the output format by the PRISM model checker. This was tested using
+    # PRISM 4.7. Future versions of PRISM may require modifications to this function.
+    heatmap = np.zeros((width, length))
+    results = results.split("Results (including zeros) for filter", 1)[1]
+    results = results.split(":\r\n", 1)[1]
+    results = results.split("\r\n\r\nValue in the initial state", 1)[0]
+    results = results.split("\r\n")
+    for result in results:
+        temp, value = result.split("=")
+        value = float(value) if value != "NaN" else 0.0
+        state = int(temp.split("(")[1].split(")")[0])
+        row = state // length
+        col = state % length
+        if (row * length) + col >= width * length: continue
+        heatmap[row, col] = value
+    return heatmap

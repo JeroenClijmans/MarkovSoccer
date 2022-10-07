@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotsoccer.fns as fns
+import numpy as np
 from abc import ABC, abstractmethod
+from markovsoccer.prism import PrismModel
 from markovsoccer.team_model import TeamModel
 from markovsoccer.config import *
 from scipy.interpolate import interp2d  # type: ignore
@@ -180,3 +182,33 @@ class LongGoalKicks(Feature):
         :return: Probability of kicking a goal kick to the opponent half.
         """
         return team_model.probability_of_moving_to(GOALKICK_STATE, OPPONENT_HALF_STATES)
+
+
+class SuccessfulCounterattackProbability(Feature):
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def calculate(team_model: TeamModel) -> float:
+        """
+        Calculate the probability of launching a successful counterattack,
+        quantified as the probability of arriving at a shot within eight actions
+        after recovering the ball in the own half.
+        :param team_model: The team model
+        :return: Probability of arriving at a shot within eight actions after
+        recovering the ball in the own half.
+        """
+        # construct a heatmap of the probability of arriving at a shot within
+        # eight actions for each state in the own half
+        prism_model = PrismModel.construct_from(team_model)
+        heatmap = prism_model.property_heatmap('filter(printall, P=? [ F<=8 "shot_taken" ], "own_half")', WIDTH, LENGTH)
+        heatmap = heatmap[0:WIDTH // 2, 0:LENGTH // 2]  # only consider the own half
+        # weight each state in the own half by the probability of recovering the
+        # ball there
+        row = team_model.transition_matrix[BALL_REGAIN_STATE, :NB_FIELD_STATES]
+        weights = row.reshape((WIDTH, LENGTH))
+        weights = weights[0:WIDTH // 2, 0:LENGTH // 2]  # only consider the own half
+        weights = weights / np.sum(weights)
+        result = np.sum(np.multiply(heatmap, weights))
+        return result
