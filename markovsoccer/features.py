@@ -213,3 +213,21 @@ class SuccessfulCounterattackProbability(Feature):
         weights = weights / np.sum(weights)
         result = np.sum(np.multiply(heatmap, weights))
         return result
+
+
+class AbilityToCreateShootingOpportunities(Feature):
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def calculate(team_model: TeamModel) -> any:
+        shot_states = list(map(lambda s: s - NB_TRANSIENT_STATES, list(SHOT_STATES)))
+        probabilities_of_absorption = team_model.B[:NB_FIELD_STATES, np.array(shot_states)]
+        probabilities_of_shot = np.sum(probabilities_of_absorption, axis=1)
+        probabilities_of_shot_heatmap = probabilities_of_shot.reshape((WIDTH, LENGTH))
+        # weight each state in the own half by its relative usage
+        weights = team_model.fundamental_matrix[INITIAL_STATE, :NB_FIELD_STATES].reshape((WIDTH, LENGTH))
+        weights[:, LENGTH//2:] = 0
+        weights = weights / np.sum(weights)
+        return np.sum(np.multiply(weights, probabilities_of_shot_heatmap))
