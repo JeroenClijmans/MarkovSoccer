@@ -161,7 +161,7 @@ class LongBalls(Feature):
         # calculate using the PRISM model checker
         result = 0
         normalization_constant = 0
-        for state in START_STATES:
+        for state in FIELD_STATES:
             weight = team_model.expected_number_visits_in(INITIAL_STATE, {state})
             normalization_constant += weight
             result += weight * team_model.probability_of_moving_to(state, OFFENSIVE_THIRD_STATES)
