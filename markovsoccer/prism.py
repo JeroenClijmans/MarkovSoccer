@@ -316,9 +316,12 @@ class PrismModel:
 
     # ----- code ------------------------------------------------------------- #
 
-    def to_code(self) -> str:
-        code = ""
-        code += "//generated using PRISM converter\n\n{}".format(self.model_type)
+    def to_code(self, meta: str = None) -> str:
+        if meta is None:
+            code = ""
+        else:
+            code = f"{meta}\n\n"
+        code += self.model_type
         for module in self.modules:
             code += "\n\n" + module.to_code()
         for reward in self.rewards:
@@ -328,9 +331,9 @@ class PrismModel:
             code += "\n" + label.to_code()
         return code
 
-    def write_to_file(self, path: str):
+    def write_to_file(self, path: str, meta: str = None):
         f = open(path, "w+")
-        f.write(self.to_code())
+        f.write(self.to_code(meta))
         f.write("\n")
         f.close()
 

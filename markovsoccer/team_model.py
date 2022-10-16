@@ -35,13 +35,14 @@ class TeamModel(DTMC):
         :param model_path: path to the PRISM file
         :return: TeamModel object as read from the PRISM file
         """
+        team_name = TeamModel._extract_team_name_from_file(model_path)
         transition_matrix = TeamModel._construct_transition_matrix_from_file(model_path)
-        model = TeamModel(transition_matrix, "")  # TODO: add team name
+        model = TeamModel(transition_matrix, team_name)
         return model
 
     def convert_to_prism_file(self, path: str):
         prism_model = PrismModel.construct_from(self)
-        prism_model.write_to_file(path)
+        prism_model.write_to_file(path, meta=f"// team name: {self.team_name}")
 
     # ----- Model checking --------------------------------------------------- #
 
@@ -76,6 +77,13 @@ class TeamModel(DTMC):
         return TeamModel(transition_matrix_new, self.team_name)
 
     # ----- Private: read from PRISM file ------------------------------------ #
+
+    @staticmethod
+    def _extract_team_name_from_file(model_path: str) -> str:
+        f = open(model_path, 'r')
+        model = f.read()
+        f.close()
+        return model.split("team name: ")[1].split("\n")[0]
 
     @staticmethod
     def _construct_transition_matrix_from_file(model_path: str) -> np.ndarray:
