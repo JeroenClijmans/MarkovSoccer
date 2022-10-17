@@ -38,7 +38,7 @@ frequency of the corresponding action by that team.
 **Generalization:** The generalization ability stems from the assumption that if a team has a high likelihood of moving 
 the ball from position A to B, and also a high likelihood of moving the ball prom B to C, then this team is assumed to
 also have a high likelihood of consecutively moving the ball from A to B to C. This assumption allows the model to
-derive new likely ways how a team can score a goal, arrive at a shot, or move the ball to a particular location. This is
+derive new ways how a team can score a goal, arrive at a shot, or move the ball to a particular location. This is
 done by interleaving historical ball possession sequences. By doing so, it is hypothesized that analysis of the playing
 style based on the model is more reliable. As an example, playing style analysis based on raw event stream data only has
 a small number of shots and goals which can be analyzed, leading to skewed results. However, analysis based on the model
