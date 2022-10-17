@@ -43,7 +43,7 @@ done by interleaving historical ball possession sequences. By doing so, it is hy
 style based on the model is more reliable. As an example, playing style analysis based on raw event stream data only has
 a small number of shots and goals which can be analyzed, leading to skewed results. However, analysis based on the model
 can take into account (tens of) thousands of ways to arrive at a shot or score a goal, each which their own probability.
-This leads to more all-encompassing and less skewed results.
+This leads to a more all-encompassing view and less skewed results.
 
 The figure below visualizes the generalization ability. Imagine a first sequence representing a goal as in the left
 image. Then image a second sequence ending in a ball loss as in the middle image. The model will then be able to derive
