@@ -1,21 +1,18 @@
 # Markovsoccer
-Markovsoccer is a Python package to construct and inspect team models representing the offensive 
-behaviour of soccer teams. In particular, it provides a function to build a team model based on event stream 
-data of that team. This model represents their ball possession sequences. The team model is able to capture the 
-sequential 
-nature of the game and has the 
-ability to generalize over the historical actions that a team has performed in the past. This package 
-implements 
-several features 
-to analyze the playing style of teams based on these models. These features are related to a team's preference for certain locations, their preference for certain sequences, 
-their directness of play, and their ability to create shooting opportunities. 
+Markovsoccer is a Python package to construct and inspect team models representing the offensive behaviour of soccer
+teams. In particular, it provides a function to build a team model based on event stream data of that team. This model
+represents their ball possession sequences. The team model is able to capture the sequential nature of the game and has
+the ability to generalize over the historical actions that a team has performed in the past. This package implements the
+calculation of several numerical features to analyze the playing style of teams based on these models. These features
+are related to a team's preference for certain locations, their preference for certain sequences, their directness of
+play, and their ability to create shooting opportunities. 
 
 ## Core Features
 - **Construct Team Models**: implementation of a function to construct team models based on the 
   (vendor-independent) 
   SPADL event stream data format.
-- **Analyze Playing Style**: implementation of several features to analyze the offensive playing style of soccer 
-  teams based on these team models.
+- **Analyze Playing Style**: implementation of several numerical features to analyze the offensive playing style of 
+  soccer teams based on these team models.
 
 ## Installation
 The recommended way to install this package is using pip. The latest version officially supports Python version 3.8 - 
@@ -67,4 +64,4 @@ If you use this package in your research, please consider citing the following p
 - Clijmans, Jeroen, Maaike Van Roy, and Jesse Davis. **Looking Beyond the Past: Analyzing the Intrinsic Playing Style 
   of Soccer Teams**. European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in 
   Databases ECML PKDD 2022, 2022. [ [pdf](https://2022.ecmlpkdd.org/wp-content/uploads/2022/09/sub_1025.pdf) |
-  [bibtex](./docfiles/citation.bib)]
+  [bibtex](./docfiles/citation.bib) ]
