@@ -24,6 +24,11 @@ class SideUsage(Feature):
 
     @staticmethod
     def calculate(team_model: TeamModel) -> dict[str, float]:
+        """
+        Calculate the relative usage of the left, central, and right zones by a team.
+        :param team_model: The team model
+        :return: The relative usage of the left, central, and right zones.
+        """
         left = team_model.expected_number_visits_in(fromm=INITIAL_STATE, states=LEFT_STATES)
         center = team_model.expected_number_visits_in(fromm=INITIAL_STATE, states=CENTER_STATES)
         right = team_model.expected_number_visits_in(fromm=INITIAL_STATE, states=RIGHT_STATES)
@@ -37,6 +42,11 @@ class SideUsage(Feature):
 
     @staticmethod
     def visualize(team_model: TeamModel):
+        """
+        Calculate and visualize the relative usage of the left, central, and right zones by a team.
+        :param team_model: The team model
+        :return: null
+        """
         zone_usages = SideUsage.calculate(team_model)
         left_val, right_val, center_val = zone_usages['left'], zone_usages['right'], zone_usages['center']
         avgs = dict()
@@ -80,11 +90,23 @@ class SideUsageShot(Feature):
 
     @staticmethod
     def calculate(team_model: TeamModel) -> dict[str, float]:
+        """
+        Calculate the relative usage of the left, central, and right zones of the field in sequences which end in a
+        shot.
+        :param team_model: The team model
+        :return: Relative usage of the left, central, and right zones in shot sequences.
+        """
         team_model_shots = team_model.construct_model_if_absorbed_in(SHOT_STATES)
         return SideUsage.calculate(team_model_shots)
 
     @staticmethod
     def visualize(team_model: TeamModel):
+        """
+        Calculate and visualize the relative usage of the left, central, and right zones of the field in sequences
+        which end in a shot.
+        :param team_model: The team model
+        :return: null
+        """
         team_model_shots = team_model.construct_model_if_absorbed_in(SHOT_STATES)
         return SideUsage.visualize(team_model_shots)
 
@@ -98,6 +120,12 @@ class InwardsOutwardsPreference(Feature):
 
     @staticmethod
     def calculate(team_model: TeamModel) -> dict[str, float]:
+        """
+        Calculate a team's preference to move the ball inwards or outwards, quantified by the percentage of the top
+        200 most likely 2-action subsequences which point respectively inwards and outwards.
+        :param team_model: The team model
+        :return: Percentage of most likely 2-action subsequences which point inwards and outwards respectively.
+        """
         most_likely_subsequences = team_model.get_most_likely_subsequences(
             InwardsOutwardsPreference.SEQUENCE_LENGTH,
             InwardsOutwardsPreference.N_SEQUENCES
@@ -118,6 +146,12 @@ class InwardsOutwardsPreference(Feature):
 
     @staticmethod
     def visualize_most_likely_subsequences(team_model: TeamModel, n: int):
+        """
+        Visualize the n most likely 2-action subsequences.
+        :param team_model: the team model
+        :param n: the number of sequences to visualize
+        :return: null
+        """
         most_likely_subsequences = team_model.get_most_likely_subsequences(
             InwardsOutwardsPreference.SEQUENCE_LENGTH,
             n
@@ -222,6 +256,12 @@ class AbilityToCreateShootingOpportunities(Feature):
 
     @staticmethod
     def calculate(team_model: TeamModel) -> any:
+        """
+        Calculate the team's ability to create shooting opportunities, quantified as the probability of eventually
+        arriving at a shot when possessing the ball in the own half.
+        :param team_model: The team model
+        :return: Number quantifying the team's ability to create shooting opportunities
+        """
         shot_states = list(map(lambda s: s - NB_TRANSIENT_STATES, list(SHOT_STATES)))
         probabilities_of_absorption = team_model.B[:NB_FIELD_STATES, np.array(shot_states)]
         probabilities_of_shot = np.sum(probabilities_of_absorption, axis=1)

@@ -38,7 +38,7 @@ def heatmap_interpolated_visualization(
                                  cbar=cbar, show=show, norm_min=norm_min, norm_max=norm_max)
 
 
-def convert_dictionary_to_heatmap(results: dict, width:int, length:int) -> np.ndarray:
+def convert_dictionary_to_heatmap(results: dict, width: int, length: int) -> np.ndarray:
     heatmap = np.zeros((width, length))
     for row in range(width):
         for col in range(length):

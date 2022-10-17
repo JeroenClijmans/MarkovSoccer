@@ -62,7 +62,7 @@ class TeamModel(DTMC):
 
     # ----- Related team models ---------------------------------------------- #
 
-    def construct_model_if_absorbed_in(self, absorbing_states: set):
+    def construct_model_if_absorbed_in(self, absorbing_states: set) -> 'TeamModel':
         nb_transient_states = self.start_absorbing_states
         nb_absorbing_states = self.size - self.start_absorbing_states  # todo: check if correct
         R_new = self._construct_R_if_absorbed_in(absorbing_states)

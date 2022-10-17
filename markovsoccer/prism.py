@@ -305,7 +305,7 @@ class PrismModel:
         """
         Add a new label to the model.
         :param name: name of the label
-        :param state_req: requirement for a state to attain the label. Must be an expression in PRISM language.
+        :param state_req: requirement for a state to obtain the label. Must be an expression in PRISM language.
         :return: new PRISM label
         """
         if name in [l.get_name() for l in self.labels]:

@@ -7,8 +7,8 @@ Function to convert SPADL data to an extended version:
  - Actions related to penalty shootouts are removed.
  - Own goals are located and converted to a separate action type.
  - Kick-offs are located and converted to a separate action type.
- - Attribute is added related to whether an action is a move action.
- - Attribute is added related to whether an action is a possession start.
+ - Attribute is added related to whether an action is labeled a ball recovery.
+ - Attribute is added related to whether an action is part of a modelled possession sequence.
 """
 import pandas as pd
 import socceraction.spadl as spadl
@@ -24,14 +24,10 @@ def convert_to_extended_spadl(actions: pd.DataFrame) -> pd.DataFrame:
     _remove_penalty_shootouts(actions)
     _convert_own_goals(actions)
     _convert_kick_offs(actions)
-    actions['move_action'] = _locate_move_actions(actions)
     possession_starts = _locate_possession_starts(actions)
-    actions['possession_start'] = possession_starts
     modelled_possession_starts = _locate_modelled_possession_starts(actions, possession_starts)
-    actions['modelled_possession_start'] = modelled_possession_starts
     actions['modelled_possession_sequence'] = _locate_possession_seq_actions(actions, modelled_possession_starts)
     actions['ball_recovery'] = _locate_ball_regains(actions, modelled_possession_starts)
-    actions['ends_in_shot'] = _locate_possessions_ending_in_shot(actions, modelled_possession_starts)
     actions = actions[['game_id', 'period_id', 'timestamp', 'team_name', 'player_id', 'start_x',
                        'end_x', 'start_y', 'end_y', 'type_name', 'result_name', 'bodypart_name',
                        'ball_recovery', 'modelled_possession_sequence']]
@@ -75,38 +71,12 @@ def _convert_own_goals(actions: pd.DataFrame) -> None:
     actions.loc[own_goal_indices, 'result_name'] = 'fail'
 
 
-def _locate_move_actions(actions: pd.DataFrame) -> pd.Series:
-    result = pd.Series([False] * len(actions), dtype=bool)
-    for index, action in actions.iterrows():
-        if action['type_name'] in ('pass', 'cross', 'dribble'):
-            result.at[index] = True
-    return result
-
-
 def _locate_ball_regains(actions: pd.DataFrame, possession_start_indices: pd.Series) -> pd.Series:
     result = pd.Series([False] * len(actions), dtype=bool)
     for index in possession_start_indices[possession_start_indices].index:
         action = actions.iloc[index]
         if action['type_name'] in _BALL_REGAIN_ACTION_TYPES:
             result.at[index] = True
-    return result
-
-
-def _locate_possessions_ending_in_shot(actions: pd.DataFrame, possession_starts: pd.Series) -> pd.Series:
-    result = pd.Series([False] * len(actions), dtype=bool)
-    for index in possession_starts[possession_starts].index.values:
-        team_in_ball_possession = actions.iloc[index]['team_id']
-        ball_possession_start_index = index
-        while True:
-            index += 1
-            if index >= len(actions):
-                break
-            action = actions.iloc[index]
-            if _action_can_interrupt_sequence(action, team_in_ball_possession):
-                break
-            if action['type_name'] == 'shot':
-                result[ball_possession_start_index:index+1] = True
-                break
     return result
 
 

@@ -22,15 +22,16 @@ class DTMC:
         Initialization
 
         :param transition_matrix: 2D-matrix representing the transition probabilities from each state to each other
-        state. The transition matrix has to be ordered, i.e., transition states must have lower indices than
+        state. The transition matrix has to be ordered, i.e., transient states must have lower indices than
         absorbing states.
+        :param initial_state: initial state
         :param start_absorbing_states: Index of the first absorbing state in the transition matrix. A value of None
         means that there are only transient states.
         """
         self.transition_matrix = transition_matrix
         self.initial_state = initial_state
         self.start_absorbing_states = start_absorbing_states
-        self.size = transition_matrix.shape[0]  # todo: check if works
+        self.size = transition_matrix.shape[0]
 
         # R is the matrix containing the transition probabilities from transient to absorbing states
         self.R = self.transition_matrix[:start_absorbing_states, start_absorbing_states:]
@@ -118,9 +119,15 @@ class DTMC:
 
     # ----- Related DTMC's --------------------------------------------------- #
 
-    def construct_model_if_absorbed_in(self, absorbing_states: set):
+    def construct_model_if_absorbed_in(self, absorbing_states: set) -> "DTMC":
+        """
+        Construct the DTMC which only generates the sequences of this DTMC which end in the given set of absorbing
+        states.
+        :param absorbing_states: The states to condition on
+        :return: DTMC conditioned on the given set of absorbing states.
+        """
         nb_transient_states = self.start_absorbing_states
-        nb_absorbing_states = self.size - self.start_absorbing_states  # todo: check if correct
+        nb_absorbing_states = self.size - self.start_absorbing_states
         R_new = self._construct_R_if_absorbed_in(absorbing_states)
         Q_new = self._construct_Q_if_absorbed_in(absorbing_states)
         transition_matrix_new = np.zeros((self.size, self.size))
@@ -133,7 +140,7 @@ class DTMC:
 
     def _construct_R_if_absorbed_in(self, absorbing_states: set):
         nb_transient_states = self.start_absorbing_states
-        nb_absorbing_states = self.size - self.start_absorbing_states  # todo: check if correct
+        nb_absorbing_states = self.size - self.start_absorbing_states
         R_new = np.zeros((nb_transient_states, nb_absorbing_states))
         for transient_state in range(nb_transient_states):
             divisor = 0
