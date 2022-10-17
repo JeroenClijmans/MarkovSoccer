@@ -15,7 +15,7 @@ play, and their ability to create shooting opportunities.
   soccer teams based on these team models.
 
 ## Installation
-The recommended way to install this package is using pip. The latest version officially supports Python version 3.8 - 
+The recommended way to install this package is using pip. The latest version officially supports Python versions 3.8 - 
 3.10.
 
 ```
